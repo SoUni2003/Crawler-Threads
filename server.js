@@ -2,11 +2,10 @@ const express = require('express');
 const fs = require('fs');
 const path = require('path');
 const cors = require('cors');
-const helmet = require('helmet');
+const { exec } = require('child_process');
 
 const app = express();
 const port = 3000;
-
 app.use(cors());
 
 app.use('/images', express.static(path.join(__dirname, 'images')));
@@ -46,6 +45,38 @@ app.get('/api/posts', (req, res) => {
   } catch (error) {
     res.status(500).send('Error post.');
   }
+});
+
+app.get('/api/postsn', (req, res) => {
+  try {
+    const posts = readJSONFile('list_post_user_data.json');
+    res.json(posts);
+  } catch (error) {
+    res.status(500).send('Error post.');
+  }
+});
+
+app.use(express.json());
+
+app.post('/crawl-and-upload', (req, res) => {
+    const { keyword } = req.body; 
+    if (!keyword) {
+        return res.status(400).json({ message: 'Keyword is required' });
+    }
+    console.log(`Crawling with keyword: ${keyword}`);
+    
+    exec(`node threads.js "${keyword}" && node server.js`, (error, stdout, stderr) => {
+        if (error) {
+            console.error(`Error: ${error.message}`);
+            return res.status(500).json({ message: 'Failed to execute scripts' });
+        }
+        if (stderr) {
+            console.error(`Stderr: ${stderr}`);
+            return res.status(500).json({ message: 'Error occurred during execution' });
+        }
+        console.log(`Stdout: ${stdout}`);
+        res.json({ message: 'Data crawled and uploaded successfully' });
+    });
 });
 
 
@@ -126,7 +157,6 @@ app.get(['/', '/api'], (req, res) => {
   res.send(renderHtml());
 });
 
-// Khởi động server
 app.listen(port, () => {
   console.log(`Server đang chạy tại http://localhost:${port}`);
 });

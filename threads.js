@@ -101,8 +101,8 @@ async function collectUserInfo(driver, items) {
 
             let userInfo = {
                 link_main: await driver.getCurrentUrl(),
-                username: await getElementText(driver, By.xpath('.//div/div[1]/div[1]/div[1]/div[2]/div/span/span')),
-                details: await getElementText(driver, By.xpath('.//div/div[1]/div[1]/div[1]/div[1]/h2')),
+                userId: await getElementText(driver, By.xpath('.//div/div[1]/div[1]/div[1]/div[2]/div/span/span')),
+                name: await getElementText(driver, By.xpath('.//div/div[1]/div[1]/div[1]/div[1]/h2')),
                 avatar: await getElementAttribute(driver, By.xpath('.//div/div/img'), 'src'),
                 description: await getElementText(driver, By.xpath('.//div[2]/div[1]/div[1]/div[2]/span')),
                 follow: await getElementAttribute(driver, By.xpath('.//div/div[2]/div[1]/div[1]/div[3]/div[1]/div/div/span/span'), 'title'),
@@ -113,7 +113,7 @@ async function collectUserInfo(driver, items) {
 
             let avatarUrl = userInfo.avatar;
             if (avatarUrl) {
-                let imgName = userInfo.username.replace(/\s+/g, '_') + '.jpg';
+                let imgName = userInfo.userId.replace(/\s+/g, '_') + '.jpg';
                 let imgPath = path.join(__dirname, 'images', imgName);
                 await downloadImage(avatarUrl, imgPath);
                 userInfo.avatar = `images/${imgName}`; 
@@ -128,8 +128,8 @@ async function collectUserInfo(driver, items) {
             console.log("Error collecting user info:", err);
             userInfoList.push({
                 link_main: 'none',
-                username: 'none',
-                details: 'none',
+                userId:'none',
+                name: 'none',
                 avatar: 'none',
                 description: 'none',
                 follow: 'none',
@@ -199,18 +199,18 @@ const downloadImage = async (url, filePath) => {
     });
 };
 
-const isUsernameUnique = (username, existingUsernames) => !existingUsernames.has(username);
+const isUsernameUnique = (userId, existingUsernames) => !existingUsernames.has(userId);
 
 async function scrollAndCollectPosts(driver) {
     const posts = [];
     const userInfoPostList = [];
     const existingUsernames = new Set(); 
     const containerElement = await findValidContainerXpath(driver);
-    const postMax = 500; 
+    const postMax = 50; 
     let postIndex = 1; 
     let uniqueUserCount = 1; 
 
-    while (uniqueUserCount < postMax) {
+    while (uniqueUserCount <= postMax) {
         try {
             let postXpath = `./div[${postIndex}]`;
             let postElement = await containerElement.findElement(By.xpath(postXpath));
@@ -220,8 +220,8 @@ async function scrollAndCollectPosts(driver) {
             let titleElement = await safeFindElement(postElement, By.xpath('.//div/div/div/div/div[3]/div/div[1]'));
             let title = titleElement ? await titleElement.getText() : 'None title';
 
-            let authorElement = await safeFindElement(postElement, By.xpath('.//div/span[1]/div/div/a/span'));
-            let author = authorElement ? await authorElement.getText() : 'None author';
+            let userIdElement = await safeFindElement(postElement, By.xpath('.//div/span[1]/div/div/a/span'));
+            let userId = userIdElement ? await userIdElement.getText() : 'None';
 
             let authorHrefElement = await safeFindElement(postElement, By.xpath('.//div/span[1]/div/div/a'));
             let authorHref = authorHrefElement ? await authorHrefElement.getAttribute('href') : null;
@@ -241,9 +241,8 @@ async function scrollAndCollectPosts(driver) {
             let imgElements = await postElement.findElements(By.xpath('.//picture/img'));
 
             let postData = {
-                index: postIndex,
+                userId: userId,
                 title: title,
-                author: author,
                 time: time,
                 tym: tym,
                 comment: comment,
@@ -265,9 +264,9 @@ async function scrollAndCollectPosts(driver) {
             console.log(`Post ${postIndex}:`, postData);
 
             if (authorHref) {
-                if (isUsernameUnique(author, existingUsernames)) {
+                if (isUsernameUnique(userId, existingUsernames)) {
                     try {
-                        console.log(`Opening new tab for author: ${author}`);
+                        console.log(`Opening new tab for author: ${userId}`);
                         await driver.switchTo().newWindow('tab');
                         await driver.get(authorHref);
                         console.log('Navigating to:', await driver.getCurrentUrl());
@@ -278,10 +277,9 @@ async function scrollAndCollectPosts(driver) {
                         await sleep(3000);
 
                         let userInfoPost = {
-                            index: uniqueUserCount,
+                            userId: userId,
+                            name: await getElementText(driver, By.xpath('.//div/div[1]/div[1]/div[1]/div[1]/h2')),
                             link_main: await driver.getCurrentUrl(),
-                            username: author,
-                            details: await getElementText(driver, By.xpath('.//div/div[1]/div[1]/div[1]/div[1]/h2')),
                             avatar: await getElementAttribute(driver, By.xpath('.//div/div/img'), 'src'), // Avatar từ trang của người dùng
                             description: await getElementText(driver, By.xpath('.//div[2]/div[1]/div[1]/div[2]/span')),
                             follow: await getElementAttribute(driver, By.xpath('.//div/div[2]/div[1]/div[1]/div[3]/div[1]/div/div/span/span'), 'title'),
@@ -292,24 +290,23 @@ async function scrollAndCollectPosts(driver) {
 
                         let avatarUrl = userInfoPost.avatar;
                         if (avatarUrl) {
-                            let imgName = userInfoPost.username.replace(/\s+/g, '_') + '.jpg'; 
+                            let imgName = userInfoPost.userId.replace(/\s+/g, '_') + '.jpg'; 
                             let imgPath = path.join(__dirname, 'images', imgName);
                             await downloadImage(avatarUrl, imgPath);
                             userInfoPost.avatar = `images/${imgName}`; 
                         }
 
                         userInfoPostList.push(userInfoPost);
-                        existingUsernames.add(author); 
+                        existingUsernames.add(userId); 
                         uniqueUserCount++; 
 
                         console.log(`User info ${postIndex}:`, userInfoPost);
                     } catch (err) {
                         console.log("Error collecting user info:", err);
                         userInfoPostList.push({
-                            index: uniqueUserCount,
+                            userId: userId,
+                            name: 'none',
                             link_main: 'none',
-                            username: author,
-                            details: 'none',
                             avatar: 'none',
                             description: 'none',
                             follow: 'none',
@@ -321,7 +318,7 @@ async function scrollAndCollectPosts(driver) {
                     await driver.close();
                     await driver.switchTo().window((await driver.getAllWindowHandles())[0]);
                 } else {
-                    console.log(`Username ${author} already exists. Skipping.`);
+                    console.log(`Username ${userId} already exists. Skipping.`);
                 }
             }
             postIndex++; 
@@ -331,8 +328,6 @@ async function scrollAndCollectPosts(driver) {
             console.log(`No posts found in index ${postIndex}. Stop!.`);
             break;
         }
-        fs.writeFileSync('list_post_user_data.json', JSON.stringify(userInfoPostList, null, 2));
-        console.log("Post data has been saved to file list_post_user_data.json");
     }
 
     return { posts, userInfoPostList };
@@ -364,51 +359,58 @@ async function getElementAttribute(driver, by, attributeName) {
     }
 }
 
-(async function main() {
-    let driver = await initializeDriver();
-    try {
-        const cookieFilePath = 'cookies.json';
+(async function main() {  
+    let driver = await initializeDriver();  
+    const search = process.argv[2];  
+    const keywords = search.split("=")[1].split(",");  
 
-        await driver.get('https://www.threads.net/');
+    const cookieFilePath = 'cookies.json';  
+    const allUserInfoList = []; 
+    const allPosts = []; 
 
-        if (await loadCookies(driver, cookieFilePath)) {
-            await driver.findElement(By.xpath('/html/body/div[2]/div/div/div[2]/div[1]/div[2]/div[2]/a/div/div[2]')).click();
-            await sleep(2000);
-            await driver.findElement(By.xpath('/html/body/div[2]/div/div/div[2]/div[2]/div/div/div/div[2]/div[1]/div/div/div[2]/div[1]/div[1]/div/div[1]/div/div/label/input')).sendKeys('forex');
-        } else {
-            await loginAndSaveCookies(driver, cookieFilePath);
-            await driver.findElement(By.xpath('/html/body/div[2]/div/div/div[2]/div[1]/div[2]/div[2]/a/div/div[2]')).click();
-            await sleep(2000);
-            await driver.findElement(By.xpath('/html/body/div[2]/div/div/div[2]/div[2]/div/div/div/div[2]/div[1]/div/div/div[2]/div[1]/div[1]/div/div[1]/div/div/label/input')).sendKeys('forex');
-        }
+    for (const keyword of keywords) {  
+        try {  
+            await driver.get('https://www.threads.net/');   
 
-        await driver.findElement(By.xpath('/html/body/div[2]/div/div/div[2]/div[2]/div/div/div/div[2]/div[1]/div/div/div[2]/div[1]/div[1]/div/div[1]/div/div/label/input')).clear();
-        await sleep(2000);
+            if (await loadCookies(driver, cookieFilePath)) {  
+                await driver.findElement(By.xpath('/html/body/div[2]/div/div/div[2]/div[1]/div[2]/div[2]/a/div/div[2]')).click();  
+                await sleep(2000);  
+                await driver.findElement(By.xpath('/html/body/div[2]/div/div/div[2]/div[2]/div/div/div/div[2]/div[1]/div/div/div[2]/div[1]/div[1]/div/div[1]/div/div/label/input')).sendKeys(keyword);  
+            } else {  
+                await loginAndSaveCookies(driver, cookieFilePath);  
+                await driver.findElement(By.xpath('/html/body/div[2]/div/div/div[2]/div[1]/div[2]/div[2]/a/div/div[2]')).click();  
+                await sleep(2000);  
+                await driver.findElement(By.xpath('/html/body/div[2]/div/div/div[2]/div[2]/div/div/div/div[2]/div[1]/div/div/div[2]/div[1]/div[1]/div/div[1]/div/div/label/input')).sendKeys(keyword);  
+            }  
+                
+            await driver.findElement(By.xpath('/html/body/div[2]/div/div/div[2]/div[2]/div/div/div/div[2]/div[1]/div/div/div[2]/div[1]/div[1]/div/div[1]/div/div/label/input')).clear();  
+            await sleep(2000);  
 
-        let allItems = await scrollAndLoadItems(driver);
-        let userInfoList = await collectUserInfo(driver, allItems);
+            let allItems = await scrollAndLoadItems(driver);  
+            let userInfoList = await collectUserInfo(driver, allItems);  
+            allUserInfoList.push(...userInfoList);  
+            console.log(`Processed user list for ${keyword}`);  
 
-        fs.writeFileSync('list_user_search.json', JSON.stringify(userInfoList, null, 2));
-        console.log("Saved user list to file list_user_search.json");
+            await sleep(3000);  
+            let inputElement = await driver.findElement(By.xpath('/html/body/div[2]/div/div/div[2]/div[2]/div/div/div/div[2]/div[1]/div/div/div[2]/div[1]/div[1]/div/div[1]/div/div/label/input'));  
+            await inputElement.clear();  
+            await sleep(3000);  
+            await inputElement.sendKeys('\n');  
+            await sleep(5000);  
 
-        await sleep(3000)
-        let inputElement = await driver.findElement(By.xpath('/html/body/div[2]/div/div/div[2]/div[2]/div/div/div/div[2]/div[1]/div/div/div[2]/div[1]/div[1]/div/div[1]/div/div/label/input'));
-        await inputElement.clear();
-        await sleep(3000);
-        await inputElement.sendKeys('\n');
-        await sleep(5000);
+            let { posts, userInfoPostList } = await scrollAndCollectPosts(driver);  
+            allPosts.push(...posts); 
+            allUserInfoList.push(...userInfoPostList);
+            console.log(`Collected posts for ${keyword}`);  
 
-        let {posts, userInfoPostList } = await scrollAndCollectPosts(driver);
+        } catch (error) {  
+            console.error(`An error occurred while processing ${keyword}:`, error);  
+        }   
+    }  
 
-        let allUser = userInfoList.concat(userInfoPostList);
+    fs.writeFileSync('all_user_search.json', JSON.stringify(allUserInfoList, null, 2));  
+    fs.writeFileSync('all_post_user_search.json', JSON.stringify(allPosts, null, 2));  
+    console.log("All data has been saved into all_user_search.json and all_post_user_search.json.");  
 
-        fs.writeFileSync('all_user_search.json', JSON.stringify(allUser, null, 2));
-        fs.writeFileSync('all_post_user_search.json', JSON.stringify(posts, null, 2));
-        console.log("Data has been saved ");
-    } catch (error) {
-        console.error('An error occurred:', error);
-    } 
-    finally {
-        await driver.quit();
-    }
+    await driver.quit();  
 })();
