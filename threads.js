@@ -7,42 +7,48 @@ const axios = require('axios');
 function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
-
 async function initializeDriver() {
     const options = new chrome.Options();
     options.addArguments('--start-maximized'); 
     return new Builder().forBrowser('chrome').setChromeOptions(options).build();
 }
 
-async function loadCookies(driver, cookieFilePath) {
-    if (fs.existsSync(cookieFilePath)) {
-        const cookies = JSON.parse(fs.readFileSync(cookieFilePath, 'utf8'));
-        const currentTime = Math.floor(new Date().getTime() / 1000);
-        console.log(currentTime);
+async function loadCookies(driver, cookieFilePath) {  
+    try {  
+        if (fs.existsSync(cookieFilePath)) {  
+            const cookies = JSON.parse(fs.readFileSync(cookieFilePath, 'utf8'));  
+            const currentTime = Math.floor(new Date().getTime() / 1000);  
+            console.log(`Current time: ${currentTime}`);  
 
-        let isCookieValid = cookies.some(cookie => cookie.expiry && cookie.expiry > currentTime);
-        console.log(isCookieValid);
-        
-        if (isCookieValid) {
-            for (let cookie of cookies) {
-                await driver.manage().addCookie(cookie);
-            }
-            await driver.navigate().refresh();
-            console.log('Using existing cookies, no need to login again.');
-            return true;
-        } else {
-            console.log('Cookies have expired, need to login again.');
-            fs.unlinkSync(cookieFilePath);
-        }
-    }
-    return false;
+            let isCookieValid = cookies.some(cookie => cookie.expiry && cookie.expiry > currentTime);  
+            console.log(`Are cookies valid? ${isCookieValid}`);  
+
+            const currentUrl = await driver.getCurrentUrl();  
+            const currentDomain = new URL(currentUrl).hostname;  
+
+            if (isCookieValid && currentDomain.includes('threads.net')) {  
+                for (let cookie of cookies) {  
+                    await driver.manage().addCookie(cookie); 
+                }  
+                await driver.navigate().refresh();  
+                console.log('Using existing cookies, no need to login again.');  
+                return true; 
+            } else {  
+                console.log('Cookies have expired/Invalid domain, need to login again.');  
+                fs.unlinkSync(cookieFilePath); 
+            }  
+        }  
+    } catch (error) {  
+        console.error("Error loading cookies:", error);  
+    }  
+    return false; 
 }
 
 async function loginAndSaveCookies(driver, cookieFilePath) {
     await driver.get('https://www.threads.net/login');
-    await driver.findElement(By.xpath('/html/body/div[1]/div/div/div[2]/div/div/div/div[1]/div[1]/div[3]/form/div/div[1]/input')).sendKeys('quocnghitr0504@gmail.com');
-    await driver.findElement(By.xpath('/html/body/div[1]/div/div/div[2]/div/div/div/div[1]/div[1]/div[3]/form/div/div[2]/input')).sendKeys('sORROWN05042003@@@@@@');
-    await driver.findElement(By.xpath('/html/body/div[1]/div/div/div[2]/div/div/div/div[1]/div[1]/div[3]/form/div/div[3]/div[2]')).click();
+    await driver.findElement(By.xpath('.//div/div/div/div[1]/div[1]/div[3]/form/div/div[1]/input')).sendKeys('quocnghitr0504@gmail.com');
+    await driver.findElement(By.xpath('.//div/div/div/div[1]/div[1]/div[3]/form/div/div[2]/input')).sendKeys('sORROWN05042003@@@@@@');
+    await driver.findElement(By.xpath('.//div/div/div/div[1]/div[1]/div[3]/form/div/div[3]/div[2]')).click();
     await sleep(3000);
 
     const cookies = await driver.manage().getCookies();
@@ -74,6 +80,11 @@ async function scrollAndLoadItems(driver) {
     return allItems;
 }
 
+
+async function sleep(ms) {  
+    return new Promise(resolve => setTimeout(resolve, ms));  
+}  
+
 async function collectUserInfo(driver, items) {
     let userInfoList = [];
     const originalWindow = await driver.getWindowHandle();
@@ -84,8 +95,7 @@ async function collectUserInfo(driver, items) {
             let avatarElements = await item.findElements(By.xpath('.//div/img'));
             if (avatarElements.length === 0) {
                 continue;
-            }
-
+            }            
             await driver.executeScript("arguments[0].scrollIntoView(true);", item);
             const linkElement = await item.findElement(By.xpath('.//object/a'));
             const link = await linkElement.getAttribute('href');
@@ -120,7 +130,6 @@ async function collectUserInfo(driver, items) {
             }
             userInfoList.push(userInfo);
             console.log(`User ${i}:`, userInfo);
-
             await driver.close();
             await driver.switchTo().window(originalWindow);
 
@@ -158,7 +167,6 @@ async function extractDataByLabel(driver, label) {
     }
     return 'none';
 }
-
 
 async function findValidContainerXpath(driver) {
     const xpath1 = '/html/body/div[2]/div/div/div[2]/div[2]/div/div/div/div[1]/div[1]/div/div/div[2]/div[1]/div[1]/div/div[2]/div/div/div[1]';
@@ -206,7 +214,7 @@ async function scrollAndCollectPosts(driver) {
     const userInfoPostList = [];
     const existingUsernames = new Set(); 
     const containerElement = await findValidContainerXpath(driver);
-    const postMax = 50; 
+    const postMax = 10; 
     let postIndex = 1; 
     let uniqueUserCount = 1; 
 
@@ -398,6 +406,7 @@ async function getElementAttribute(driver, by, attributeName) {
             await inputElement.sendKeys('\n');  
             await sleep(5000);  
 
+
             let { posts, userInfoPostList } = await scrollAndCollectPosts(driver);  
             allPosts.push(...posts); 
             allUserInfoList.push(...userInfoPostList);
@@ -414,3 +423,4 @@ async function getElementAttribute(driver, by, attributeName) {
 
     await driver.quit();  
 })();
+

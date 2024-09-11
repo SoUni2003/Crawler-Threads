@@ -1,17 +1,17 @@
 [
   {
     "domain": ".threads.net",
-    "expiry": 1755742654,
+    "expiry": 1757594438,
     "httpOnly": true,
     "name": "sessionid",
     "path": "/",
     "sameSite": "Lax",
     "secure": true,
-    "value": "68690005598%3Ahn0Bsq2mYoG9RE%3A8%3AAYe5LB6NZZNG-YzPkUS3BRywwoGn-sbPZyOkNU-Ukw"
+    "value": "68690005598%3AYBxz4SmHftH01C%3A29%3AAYeD8c6YPpSxRAN5is8AtsrzQkVhpnGH_nKIiDgLNg"
   },
   {
     "domain": ".threads.net",
-    "expiry": 1731982654,
+    "expiry": 1733834438,
     "httpOnly": false,
     "name": "ds_user_id",
     "path": "/",
@@ -21,32 +21,32 @@
   },
   {
     "domain": ".threads.net",
-    "expiry": 1755656254,
+    "expiry": 1757508038,
     "httpOnly": false,
     "name": "csrftoken",
     "path": "/",
     "sameSite": "Lax",
     "secure": true,
-    "value": "xwAgvzB3C7Dr6on2gNZqSkcZvLA00iT2"
+    "value": "iOEnZRX0W5Jb0wjkujx7ay97IMPynkcj"
   },
   {
     "domain": ".threads.net",
-    "expiry": 1755742650,
+    "expiry": 1757594431,
     "httpOnly": true,
     "name": "ig_did",
     "path": "/",
     "sameSite": "None",
     "secure": true,
-    "value": "30032A58-CB60-4DB5-8066-C21C8A3D846C"
+    "value": "2CE1994C-F216-4265-8C3B-96A77A43697C"
   },
   {
     "domain": ".threads.net",
-    "expiry": 1758766650,
+    "expiry": 1760618430,
     "httpOnly": false,
     "name": "mid",
     "path": "/",
     "sameSite": "Lax",
     "secure": true,
-    "value": "ZsVOOAALAAFSBwvZoQy98rkc1bji"
+    "value": "ZuGPuwALAAGodtNk_JxwYiKPYQnk"
   }
 ]
