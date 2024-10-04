@@ -13,6 +13,7 @@
     "puppeteer": "^23.0.1",
     "puppeteer-extra": "^3.3.6",
     "puppeteer-extra-plugin-adblocker": "^2.13.6",
-    "selenium-webdriver": "^4.23.0"
+    "selenium-webdriver": "^4.23.0",
+    "socket.io": "^4.8.0"
   }
 }

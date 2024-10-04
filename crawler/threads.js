@@ -56,100 +56,138 @@ async function loginAndSaveCookies(driver, cookieFilePath) {
     console.log('Saved cookies to file.');
 }
 
-async function scrollAndLoadItems(driver) {
-    let allItems = [];
-    while (true) {
-        let listItems = await driver.findElements(By.xpath('//ul/li'));
-        if (listItems.length === 0) {
-            break;
+// async function scrollAndLoadItems(driver) {
+//     let allItems = [];
+//     while (true) {
+//         let listItems = await driver.findElements(By.xpath('//ul/li'));
+//         if (listItems.length === 0) {
+//             break;
+//         }
+
+//         allItems = allItems.concat(listItems);
+
+//         let listElement = driver.findElement(By.xpath('/html/body/div[2]/div/div/div[2]/div[2]/div/div/div/div[2]/div[1]/div/div/div[2]/div[1]/div[1]/div/div[2]/div/div/div/ul'));
+//         let lastHeight = await driver.executeScript("return arguments[0].scrollHeight", listElement);
+//         await driver.executeScript("arguments[0].scrollBy(0, arguments[1]);", listElement, lastHeight);
+//         await sleep(2000);
+
+//         let newHeight = await driver.executeScript("return arguments[0].scrollHeight", listElement);
+//         if (newHeight === lastHeight) {
+//             break;
+//         }
+//         lastHeight = newHeight;
+//     }
+//     return allItems;
+// }
+
+async function savePostToAPI(postInfo) {
+    try {
+        const response = await axios.post('http://14.224.183.55/api/v1/threads/save-post', postInfo);
+        console.log(`User ${postInfo.userId} has been sent to the API.`);
+        console.log("Response:", response.data);
+    } catch (error) {
+        console.error(`Error sending data for user ${postInfo.userId} to the API:`, error.message);
+        if (error.response) {
+            console.error("Response data:", error.response.data);
+            console.error("Response status:", error.response.status);
+            console.error("Response headers:", error.response.headers);
         }
-
-        allItems = allItems.concat(listItems);
-
-        let listElement = driver.findElement(By.xpath('/html/body/div[2]/div/div/div[2]/div[2]/div/div/div/div[2]/div[1]/div/div/div[2]/div[1]/div[1]/div/div[2]/div/div/div/ul'));
-        let lastHeight = await driver.executeScript("return arguments[0].scrollHeight", listElement);
-        await driver.executeScript("arguments[0].scrollBy(0, arguments[1]);", listElement, lastHeight);
-        await sleep(2000);
-
-        let newHeight = await driver.executeScript("return arguments[0].scrollHeight", listElement);
-        if (newHeight === lastHeight) {
-            break;
-        }
-        lastHeight = newHeight;
+        throw error;
     }
-    return allItems;
 }
 
-
-async function sleep(ms) {  
-    return new Promise(resolve => setTimeout(resolve, ms));  
-}  
-
-async function collectUserInfo(driver, items) {
-    let userInfoList = [];
-    const originalWindow = await driver.getWindowHandle();
-
-    for (let i = 0; i < items.length; i++) {
-        let item = items[i];
-        try {
-            let avatarElements = await item.findElements(By.xpath('.//div/img'));
-            if (avatarElements.length === 0) {
-                continue;
-            }            
-            await driver.executeScript("arguments[0].scrollIntoView(true);", item);
-            const linkElement = await item.findElement(By.xpath('.//object/a'));
-            const link = await linkElement.getAttribute('href');
-
-            await driver.executeScript("window.open(arguments[0]);", link);
-            await driver.switchTo().window((await driver.getAllWindowHandles())[1]);
-            console.log('Navigating to:', await driver.getCurrentUrl());
-            await sleep(3000);
-
-            let element = await driver.wait(until.elementLocated(By.xpath('.//div/div[1]/div[1]/div[1]/div[1]/h2')), 10000);
-            await element.click();
-            await sleep(3000);
-
-            let userInfo = {
-                link_main: await driver.getCurrentUrl(),
-                userId: await getElementText(driver, By.xpath('.//div/div[1]/div[1]/div[1]/div[2]/div/span/span')),
-                name: await getElementText(driver, By.xpath('.//div/div[1]/div[1]/div[1]/div[1]/h2')),
-                avatar: await getElementAttribute(driver, By.xpath('.//div/div/img'), 'src'),
-                description: await getElementText(driver, By.xpath('.//div[2]/div[1]/div[1]/div[2]/span')),
-                follow: await getElementAttribute(driver, By.xpath('.//div/div[2]/div[1]/div[1]/div[3]/div[1]/div/div/span/span'), 'title'),
-                linkother: await getElementText(driver, By.xpath('.//div/span[2]/a/div/span/span')),
-                joined: await extractDataByLabel(driver, 'Joined'),
-                basein: await extractDataByLabel(driver, 'Based in')
-            };
-
-            let avatarUrl = userInfo.avatar;
-            if (avatarUrl) {
-                let imgName = userInfo.userId.replace(/\s+/g, '_') + '.jpg';
-                let imgPath = path.join(__dirname, 'images', imgName);
-                await downloadImage(avatarUrl, imgPath);
-                userInfo.avatar = `images/${imgName}`; 
-            }
-            userInfoList.push(userInfo);
-            console.log(`User ${i}:`, userInfo);
-            await driver.close();
-            await driver.switchTo().window(originalWindow);
-
-        } catch (err) {
-            console.log("Error collecting user info:", err);
-            userInfoList.push({
-                link_main: 'none',
-                userId:'none',
-                name: 'none',
-                avatar: 'none',
-                description: 'none',
-                follow: 'none',
-                linkother: 'none',
-                joined: 'none',
-                basein: 'none'
-            });
+async function saveUserToAPI(userInfo) {
+    try {
+        const response = await axios.post('http://14.224.183.55/api/v1/threads/save-user', userInfo);
+        console.log(`User ${userInfo.userId} has been sent to the API.`);
+        console.log("Response:", response.data);
+    } catch (error) {
+        console.error(`Error sending data for user ${userInfo.userId} to the API:`, error.message);
+        if (error.response) {
+            console.error("Response data:", error.response.data);
+            console.error("Response status:", error.response.status);
+            console.error("Response headers:", error.response.headers);
         }
+        throw error;
     }
-    return userInfoList;
 }
+
+// async function collectUserInfo(driver, items) {
+//     let userInfoList = [];
+//     const originalWindow = await driver.getWindowHandle();
+
+//     for (let i = 0; i < items.length; i++) {
+//         let item = items[i];
+//         try {
+//             let avatarElements = await item.findElements(By.xpath('.//div/img'));
+//             if (avatarElements.length === 0) {
+//                 continue;
+//             }            
+//             await driver.executeScript("arguments[0].scrollIntoView(true);", item);
+//             const linkElement = await item.findElement(By.xpath('.//object/a'));
+//             const link = await linkElement.getAttribute('href');
+
+//             await driver.executeScript("window.open(arguments[0]);", link);
+//             await driver.switchTo().window((await driver.getAllWindowHandles())[1]);
+
+//             let backButton = await safeFindElement(driver, By.xpath('//*[@id="barcelona-page-layout"]/div/div/div/a/div'));
+//             if (backButton) {
+//                 await driver.close();
+//                 await driver.switchTo().window(originalWindow);
+//                 continue;
+//             } else {
+//                 console.log('Back button not found, continuing without clicking.');
+//             }
+//             console.log('Navigating to:', await driver.getCurrentUrl());
+//             await sleep(3000);
+
+//             let element = await driver.wait(until.elementLocated(By.xpath('.//div/div[1]/div[1]/div[1]/div[1]/h1')), 10000);
+//             await element.click();
+//             await sleep(3000);
+
+//             let userInfo = {
+//                 link_Main: await driver.getCurrentUrl(),
+//                 userId: await getElementText(driver, By.xpath('.//div/div[1]/div[1]/div[1]/div[2]/div/span/span')),
+//                 name: await getElementText(driver, By.xpath('.//div/div[1]/div[1]/div[1]/div[1]/h1')),
+//                 avatar: await getElementAttribute(driver, By.xpath('.//div/div/img'), 'src'),
+//                 description: await getElementText(driver, By.xpath('.//div[2]/div[1]/div[1]/div[2]/span')),
+//                 follow: await getElementAttribute(driver, By.xpath('.//div/div[2]/div[1]/div[1]/div[3]/div[1]/div/div/span/span'), 'title'),
+//                 linkOther: await getElementText(driver, By.xpath('.//div[2]/div/span[2]/div/a/span/span')),
+//                 joined: await extractDataByLabel(driver, 'Joined'),
+//                 baseIn: await extractDataByLabel(driver, 'Based in')
+//             };
+
+//             let avatarUrl = userInfo.avatar;
+//             if (avatarUrl) {
+//                 let imgName = userInfo.userId.replace(/\s+/g, '_') + '.jpg';
+//                 let imgPath = path.join(__dirname, 'images', imgName);
+//                 await downloadImage(avatarUrl, imgPath);
+//                 userInfo.avatar = `images/${imgName}`; 
+//             }
+//             userInfoList.push(userInfo);
+//             await saveUserToAPI(userInfo);
+//             console.log(`User ${i}:`, userInfo);
+//             await driver.close();
+//             await driver.switchTo().window(originalWindow);
+
+//         } catch (err) {
+//             console.log("Error collecting user info:", err);
+//             let defaultUserInfo = {
+//                 userId: userId,
+//                 name: 'none',
+//                 link_Main: 'none',
+//                 avatar: 'none',
+//                 description: 'none',
+//                 follow: 'none',
+//                 linkOther: 'none',
+//                 joined: 'none',
+//                 baseIn: 'none'
+//             };
+//             await saveUserToAPI(defaultUserInfo);
+//         }
+//     }
+//     return userInfoList;
+// }
 
 async function extractDataByLabel(driver, label) {
     try {
@@ -269,6 +307,7 @@ async function scrollAndCollectPosts(driver) {
                 postData.images = imgSrcs;
             }
             posts.push(postData);
+            await savePostToAPI(postData);
             console.log(`Post ${postIndex}:`, postData);
 
             if (authorHref) {
@@ -280,20 +319,20 @@ async function scrollAndCollectPosts(driver) {
                         console.log('Navigating to:', await driver.getCurrentUrl());
                         await sleep(3000);
 
-                        let element = await driver.wait(until.elementLocated(By.xpath('.//div/div[1]/div[1]/div[1]/div[1]/h2')), 10000);
+                        let element = await driver.wait(until.elementLocated(By.xpath('.//div/div[1]/div[1]/div[1]/div[1]/h1')), 10000);
                         await element.click();
                         await sleep(3000);
 
                         let userInfoPost = {
                             userId: userId,
-                            name: await getElementText(driver, By.xpath('.//div/div[1]/div[1]/div[1]/div[1]/h2')),
-                            link_main: await driver.getCurrentUrl(),
+                            name: await getElementText(driver, By.xpath('.//div/div[1]/div[1]/div[1]/div[1]/h1')),
+                            link_Main: await driver.getCurrentUrl(),
                             avatar: await getElementAttribute(driver, By.xpath('.//div/div/img'), 'src'), // Avatar từ trang của người dùng
                             description: await getElementText(driver, By.xpath('.//div[2]/div[1]/div[1]/div[2]/span')),
                             follow: await getElementAttribute(driver, By.xpath('.//div/div[2]/div[1]/div[1]/div[3]/div[1]/div/div/span/span'), 'title'),
-                            linkother: await getElementText(driver, By.xpath('.//div/span[2]/a/div/span/span')),
+                            linkOther: await getElementText(driver, By.xpath('.//div[2]/div/span[2]/div/a/span/span')),
                             joined: await extractDataByLabel(driver, 'Joined'),
-                            basein: await extractDataByLabel(driver, 'Based in')
+                            baseIn: await extractDataByLabel(driver, 'Based in')
                         };
 
                         let avatarUrl = userInfoPost.avatar;
@@ -305,23 +344,25 @@ async function scrollAndCollectPosts(driver) {
                         }
 
                         userInfoPostList.push(userInfoPost);
+                        await saveUserToAPI(userInfoPost);
                         existingUsernames.add(userId); 
                         uniqueUserCount++; 
 
                         console.log(`User info ${postIndex}:`, userInfoPost);
                     } catch (err) {
                         console.log("Error collecting user info:", err);
-                        userInfoPostList.push({
+                        let defaultUserInfo = {
                             userId: userId,
                             name: 'none',
-                            link_main: 'none',
+                            link_Main: 'none',
                             avatar: 'none',
                             description: 'none',
                             follow: 'none',
-                            linkother: 'none',
+                            linkOther: 'none',
                             joined: 'none',
-                            basein: 'none'
-                        });
+                            baseIn: 'none'
+                        };
+                        await saveUserToAPI(defaultUserInfo);
                     }
                     await driver.close();
                     await driver.switchTo().window((await driver.getAllWindowHandles())[0]);
@@ -391,20 +432,26 @@ async function getElementAttribute(driver, by, attributeName) {
                 await driver.findElement(By.xpath('/html/body/div[2]/div/div/div[2]/div[2]/div/div/div/div[2]/div[1]/div/div/div[2]/div[1]/div[1]/div/div[1]/div/div/label/input')).sendKeys(keyword);  
             }  
                 
-            await driver.findElement(By.xpath('/html/body/div[2]/div/div/div[2]/div[2]/div/div/div/div[2]/div[1]/div/div/div[2]/div[1]/div[1]/div/div[1]/div/div/label/input')).clear();  
-            await sleep(2000);  
 
-            let allItems = await scrollAndLoadItems(driver);  
-            let userInfoList = await collectUserInfo(driver, allItems);  
-            allUserInfoList.push(...userInfoList);  
+            // await driver.findElement(By.xpath('/html/body/div[2]/div/div/div[2]/div[2]/div/div/div/div[2]/div[1]/div/div/div[2]/div[1]/div[1]/div/div[1]/div/div/label/input')).clear();  
+            // await sleep(2000);  
+
+            // let allItems = await scrollAndLoadItems(driver);  
+            // let userInfoList = await collectUserInfo(driver, allItems);  
+            // allUserInfoList.push(...userInfoList); 
+            
+            
             console.log(`Processed user list for ${keyword}`);  
 
-            await sleep(3000);  
+            // await sleep(3000);  
+
+
             let inputElement = await driver.findElement(By.xpath('/html/body/div[2]/div/div/div[2]/div[2]/div/div/div/div[2]/div[1]/div/div/div[2]/div[1]/div[1]/div/div[1]/div/div/label/input'));  
             await inputElement.clear();  
-            await sleep(3000);  
+            // await sleep(3000);  
+
             await inputElement.sendKeys('\n');  
-            await sleep(5000);  
+            // await sleep(5000);  
 
 
             let { posts, userInfoPostList } = await scrollAndCollectPosts(driver);  
@@ -415,12 +462,8 @@ async function getElementAttribute(driver, by, attributeName) {
         } catch (error) {  
             console.error(`An error occurred while processing ${keyword}:`, error);  
         }   
-    }  
+    } 
 
-    fs.writeFileSync('all_user_search.json', JSON.stringify(allUserInfoList, null, 2));  
-    fs.writeFileSync('all_post_user_search.json', JSON.stringify(allPosts, null, 2));  
-    console.log("All data has been saved into all_user_search.json and all_post_user_search.json.");  
-
-    await driver.quit();  
+    // await driver.quit();  
 })();
 

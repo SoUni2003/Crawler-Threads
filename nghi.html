@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Premium Website Hosting</title>
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .hosting-ad {
+            background: linear-gradient(135deg, #FFD700, #FFA500);
+            color: #fff;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            margin-bottom: 40px;
+        }
+        .hosting-ad-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .content {
+            flex: 1;
+        }
+        h1 {
+            font-size: 42px;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+        ul {
+            list-style-type: none;
+            padding-left: 0;
+        }
+        li {
+            margin-bottom: 15px;
+            font-size: 18px;
+        }
+        .icons {
+            display: flex;
+            gap: 20px;
+        }
+        .icon {
+            width: 80px;
+            height: 80px;
+            background-color: rgba(255,255,255,0.2);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 32px;
+            transition: transform 0.3s ease;
+        }
+        .icon:hover {
+            transform: scale(1.1);
+        }
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+        }
+        .feature {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            transition: transform 0.3s ease;
+        }
+        .feature:hover {
+            transform: translateY(-5px);
+        }
+        .feature h2 {
+            font-size: 24px;
+            margin-bottom: 15px;
+            color: #FFA500;
+        }
+        .feature p {
+            font-size: 16px;
+            line-height: 1.6;
+        }
+        .cta-button {
+            display: inline-block;
+            background-color: #FFA500;
+            color: #fff;
+            padding: 12px 24px;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: bold;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+            box-shadow: 0 6px 0 #CC8400, 0 12px 20px rgba(0,0,0,0.15);
+            position: relative;
+            top: 0;
+        }
+        .cta-button:hover {
+            background-color: #FF8C00;
+            box-shadow: 0 4px 0 #CC8400, 0 8px 16px rgba(0,0,0,0.15);
+            top: 2px;
+        }
+        .cta-button:active {
+            box-shadow: 0 2px 0 #CC8400, 0 4px 8px rgba(0,0,0,0.15);
+            top: 4px;
+        }
+
+        .pricing {
+            margin-top: 60px;
+        }
+        .pricing h2 {
+            text-align: center;
+            font-size: 36px;
+            margin-bottom: 40px;
+            color: #333;
+        }
+        .plans {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            flex-wrap: wrap;
+        }
+        .plan {
+            background-color: #fff;
+            border-radius: 15px;
+            padding: 30px;
+            width: 300px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+            display: flex;
+            flex-direction: column;
+        }
+        .plan:hover {
+            transform: translateY(-10px);
+        }
+        .plan h3 {
+            font-size: 24px;
+            color: #FFA500;
+            margin-bottom: 15px;
+        }
+        .plan .price {
+            font-size: 36px;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+        .plan ul {
+            text-align: left;
+            margin-bottom: 25px;
+            flex-grow: 1;
+        }
+        .plan .cta-button {
+            width: calc(100% + 60px);
+            margin-left: -30px;
+            margin-right: -30px;
+            margin-bottom: -30px;
+            padding: 15px 0;
+            border-radius: 0 0 15px 15px;
+            background-color: #FFA500;
+            color: #fff;
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 6px 0 #CC8400, 0 12px 20px rgba(0,0,0,0.15);
+            position: relative;
+            top: 0;
+        }
+        .plan .cta-button:hover {
+            background-color: #FF8C00;
+            box-shadow: 0 4px 0 #CC8400, 0 8px 16px rgba(0,0,0,0.15);
+            top: 2px;
+        }
+        .plan .cta-button:active {
+            box-shadow: 0 2px 0 #CC8400, 0 4px 8px rgba(0,0,0,0.15);
+            top: 4px;
+        }
+
+        .testimonials {
+            margin-top: 60px;
+            padding: 40px 0;
+            background-color: #f9f9f9;
+        }
+        .testimonials h2 {
+            text-align: center;
+            font-size: 36px;
+            margin-bottom: 40px;
+            color: #333;
+        }
+        .testimonial-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+        }
+        .testimonial {
+            background-color: #fff;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+            transition: transform 0.3s ease;
+        }
+        .testimonial:hover {
+            transform: translateY(-5px);
+        }
+        .testimonial-content {
+            font-style: italic;
+            margin-bottom: 20px;
+            color: #555;
+        }
+        .testimonial-author {
+            display: flex;
+            align-items: center;
+        }
+        .testimonial-author img {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            margin-right: 15px;
+        }
+        .author-info {
+            display: flex;
+            flex-direction: column;
+        }
+        .author-name {
+            font-weight: bold;
+            color: #333;
+        }
+        .author-company {
+            font-size: 14px;
+            color: #777;
+        }
+
+        .video-section {
+            margin-top: 60px;
+            padding: 40px 0;
+            background-color: #f0f0f0;
+        }
+        .video-section h2 {
+            text-align: center;
+            font-size: 36px;
+            margin-bottom: 40px;
+            color: #333;
+        }
+        .video-container {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            flex-wrap: wrap;
+        }
+        .video-wrapper {
+            width: 45%;
+            min-width: 300px;
+            background-color: #fff;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        .video-wrapper video {
+            width: 100%;
+            display: block;
+        }
+        .video-description {
+            padding: 20px;
+        }
+        .video-description h3 {
+            font-size: 24px;
+            color: #FFA500;
+            margin-bottom: 10px;
+        }
+        .video-description p {
+            font-size: 16px;
+            color: #555;
+        }
+
+        @media (max-width: 768px) {
+            .video-wrapper {
+                width: 100%;
+            }
+        }
+
+        .footer {
+            background-color: #333;
+            color: #fff;
+            padding: 60px 0 30px;
+            margin-top: 60px;
+        }
+        .footer-content {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        .footer-column {
+            flex: 1;
+            min-width: 200px;
+            margin-bottom: 30px;
+        }
+        .footer-column h3 {
+            color: #FFA500;
+            font-size: 18px;
+            margin-bottom: 20px;
+        }
+        .footer-column ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        .footer-column ul li {
+            margin-bottom: 10px;
+        }
+        .footer-column ul li a {
+            color: #ccc;
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+        .footer-column ul li a:hover {
+            color: #fff;
+        }
+        .social-icons {
+            display: flex;
+            gap: 15px;
+        }
+        .social-icons a {
+            color: #fff;
+            font-size: 24px;
+            transition: color 0.3s ease;
+        }
+        .social-icons a:hover {
+            color: #FFA500;
+        }
+        .footer-bottom {
+            text-align: center;
+            padding-top: 30px;
+            margin-top: 30px;
+            border-top: 1px solid #555;
+        }
+        .footer-bottom p {
+            font-size: 14px;
+            color: #999;
+        }
+
+        @media (max-width: 768px) {
+            .hosting-ad-content {
+                flex-direction: column;
+                text-align: center;
+            }
+            .icons {
+                justify-content: center;
+                margin-top: 20px;
+            }
+            h1 {
+                font-size: 32px;
+            }
+            .feature {
+                padding: 20px;
+            }
+            .plan {
+                width: 100%;
+            }
+            .video-wrapper {
+                width: 100%;
+            }
+            .footer-column {
+                flex-basis: 100%;
+                text-align: center;
+            }
+            .social-icons {
+                justify-content: center;
+            }
+        }
+
+        .footer-form input[type="email"] {
+            padding: 5px;
+            width: 100%;
+            margin-top: 10px;
+        }
+        .footer-form button {
+            background-color: #FFA500;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            margin-top: 10px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <section class="hosting-ad" data-aos="fade-up">
+            <div class="hosting-ad-content">
+                <div class="content">
+                    <h1 data-aos="fade-right" data-aos-delay="200">Premium Website Hosting from R75pm</h1>
+                    <ul data-aos="fade-right" data-aos-delay="400">
+                        <li>✔️ Unlimited disk space & unlimited traffic</li>
+                        <li>✔️ Advanced domain management</li>
+                        <li>✔️ FREE SSL certificate & daily backups</li>
+                    </ul>
+                    <a href="#" class="cta-button" data-aos="fade-up" data-aos-delay="600">Get Started Now</a>
+                </div>
+                <div class="icons" data-aos="fade-left" data-aos-delay="400">
+                    <div class="icon">🖥️</div>
+                    <div class="icon">📱</div>
+                    <div class="icon">🌐</div>
+                    <div class="icon">📊</div>
+                </div>
+            </div>
+        </section>
+
+        <section class="features">
+            <div class="feature" data-aos="fade-up">
+                <h2>Lightning Fast Servers</h2>
+                <p>Experience blazing fast load times with our state-of-the-art SSD servers and optimized network infrastructure.</p>
+            </div>
+            <div class="feature" data-aos="fade-up" data-aos-delay="200">
+                <h2>24/7 Expert Support</h2>
+                <p>Our dedicated team of hosting specialists is available round the clock to assist you with any issues or questions.</p>
+            </div>
+            <div class="feature" data-aos="fade-up" data-aos-delay="400">
+                <h2>99.9% Uptime Guarantee</h2>
+                <p>We ensure your website stays online with our robust infrastructure and redundant systems.</p>
+            </div>
+            <div class="feature" data-aos="fade-up" data-aos-delay="600">
+                <h2>Easy Website Builder</h2>
+                <p>Create stunning websites with no coding required using our intuitive drag-and-drop website builder.</p>
+            </div>
+        </section>
+
+        <section class="pricing">
+            <h2 data-aos="fade-up">Choose Your Perfect Plan</h2>
+            <div class="plans">
+                <div class="plan" data-aos="fade-up" data-aos-delay="200">
+                    <h3>Basic</h3>
+                    <div class="price">R75/mo</div>
+                    <ul>
+                        <li>✔️ 10GB Storage</li>
+                        <li>✔️ Unmetered Bandwidth</li>
+                        <li>✔️ Free SSL Certificate</li>
+                        <li>✔️ 24/7 Support</li>
+                    </ul>
+                    <a href="#" class="cta-button">Select Plan</a>
+                </div>
+                <div class="plan" data-aos="fade-up" data-aos-delay="400">
+                    <h3>Pro</h3>
+                    <div class="price">R150/mo</div>
+                    <ul>
+                        <li>✔️ 50GB Storage</li>
+                        <li>✔️ Unmetered Bandwidth</li>
+                        <li>✔️ Free SSL Certificate</li>
+                        <li>✔️ 24/7 Priority Support</li>
+                        <li>✔️ Daily Backups</li>
+                    </ul>
+                    <a href="#" class="cta-button">Select Plan</a>
+                </div>
+                <div class="plan" data-aos="fade-up" data-aos-delay="600">
+                    <h3>Business</h3>
+                    <div class="price">R299/mo</div>
+                    <ul>
+                        <li>✔️ Unlimited Storage</li>
+                        <li>✔️ Unmetered Bandwidth</li>
+                        <li>✔️ Free SSL Certificate</li>
+                        <li>✔️ 24/7 VIP Support</li>
+                        <li>✔️ Daily Backups</li>
+                        <li>✔️ Advanced Security</li>
+                    </ul>
+                    <a href="#" class="cta-button">Select Plan</a>
+                </div>
+            </div>
+        </section>
+
+        <section class="testimonials">
+            <div class="container">
+                <h2 data-aos="fade-up">What Our Customers Say</h2>
+                <div class="testimonial-grid">
+                    <div class="testimonial" data-aos="fade-up" data-aos-delay="200">
+                        <div class="testimonial-content">
+                            "Switching to this hosting service was the best decision for our e-commerce site. The speed improvement was noticeable immediately, and our sales have increased as a result."
+                        </div>
+                        <div class="testimonial-author">
+                            <img src="https://randomuser.me/api/portraits/women/65.jpg" alt="Sarah Johnson">
+                            <div class="author-info">
+                                <span class="author-name">Sarah Johnson</span>
+                                <span class="author-company">Fashion Boutique Owner</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="testimonial" data-aos="fade-up" data-aos-delay="400">
+                        <div class="testimonial-content">
+                            "The customer support team is phenomenal. They've helped me through every step of setting up my blog and optimizing it for performance. I couldn't be happier!"
+                        </div>
+                        <div class="testimonial-author">
+                            <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Michael Chen">
+                            <div class="author-info">
+                                <span class="author-name">Michael Chen</span>
+                                <span class="author-company">Tech Blogger</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="testimonial" data-aos="fade-up" data-aos-delay="600">
+                        <div class="testimonial-content">
+                            "As a small business owner, I appreciate the affordable pricing and the robust features. It's given us the tools we need to establish a strong online presence."
+                        </div>
+                        <div class="testimonial-author">
+                            <img src="https://randomuser.me/api/portraits/women/45.jpg" alt="Emily Rodriguez">
+                            <div class="author-info">
+                                <span class="author-name">Emily Rodriguez</span>
+                                <span class="author-company">Local Cafe Owner</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="video-section">
+            <div class="container">
+                <h2 data-aos="fade-up">See Our Hosting in Action</h2>
+                <div class="video-container">
+                    <div class="video-wrapper" data-aos="fade-up" data-aos-delay="200">
+                        <video controls>
+                            <source src="path_to_your_first_video.mp4" type="video/mp4">
+                            Your browser does not support the video tag.
+                        </video>
+                        <div class="video-description">
+                            <h3>Quick Setup Guide</h3>
+                            <p>Learn how to set up your website in just a few minutes with our user-friendly control panel.</p>
+                        </div>
+                    </div>
+                    <div class="video-wrapper" data-aos="fade-up" data-aos-delay="400">
+                        <video controls>
+                            <source src="path_to_your_second_video.mp4" type="video/mp4">
+                            Your browser does not support the video tag.
+                        </video>
+                        <div class="video-description">
+                            <h3>Performance Showcase</h3>
+                            <p>See the blazing fast speed of our servers in action with this real-time demonstration.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-column">
+                <h3>Company</h3>
+                <ul>
+                    <li><a href="#">About Us</a></li>
+                    <li><a href="#">Our Team</a></li>
+                    <li><a href="#">Careers</a></li>
+                    <li><a href="#">Contact Us</a></li>
+                </ul>
+            </div>
+            <div class="footer-column">
+                <h3>Services</h3>
+                <ul>
+                    <li><a href="#">Web Hosting</a></li>
+                    <li><a href="#">Domain Registration</a></li>
+                    <li><a href="#">Email Hosting</a></li>
+                    <li><a href="#">VPS Hosting</a></li>
+                </ul>
+            </div>
+            <div class="footer-column">
+                <h3>Support</h3>
+                <ul>
+                    <li><a href="#">Help Center</a></li>
+                    <li><a href="#">Knowledge Base</a></li>
+                    <li><a href="#">Community Forum</a></li>
+                    <li><a href="#">System Status</a></li>
+                </ul>
+            </div>
+            <div class="footer-column">
+                <h3>Connect With Us</h3>
+                <div class="social-icons">
+                    <a href="#" aria-label="Facebook"><i class="fab fa-facebook"></i></a>
+                    <a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a>
+                    <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin"></i></a>
+                    <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                </div>
+                <p>Subscribe to our newsletter:</p>
+                <form class="footer-form">
+                    <input type="email" placeholder="Enter your email">
+                    <button type="submit">Subscribe</button>
+                </form>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2023 Your Hosting Company. All rights reserved.</p>
+        </div>
+    </footer>
+    <script>
+      AOS.init({
+        duration: 1000,
+        once: true,
+        offset: 200
+      });
+    </script>
+</body>
+</html>
+
