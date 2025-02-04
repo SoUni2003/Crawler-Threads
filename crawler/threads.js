@@ -9,7 +9,11 @@ function sleep(ms) {
 }
 async function initializeDriver() {
     const options = new chrome.Options();
-    options.addArguments('--start-maximized'); 
+    options.addArguments('--start-maximized');  // Mở rộng cửa sổ trình duyệt
+    // options.addArguments('--headless');  // Bỏ dòng này để hiển thị cửa sổ trình duyệt
+    options.addArguments('--disable-gpu');  // Tắt GPU (thường để tránh vấn đề khi chạy trên server)
+    options.addArguments('--no-sandbox');  // Đảm bảo tính bảo mật
+    options.addArguments('--disable-dev-shm-usage');  // Tránh các lỗi bộ nhớ trong môi trường Docker
     return new Builder().forBrowser('chrome').setChromeOptions(options).build();
 }
 
@@ -80,37 +84,74 @@ async function loginAndSaveCookies(driver, cookieFilePath) {
 //     return allItems;
 // }
 
-async function savePostToAPI(postInfo) {
+// Save for API
+
+// async function savePostToAPI(postInfo) {
+//     try {
+//         const response = await axios.post('http://14.224.183.55/api/v1/threads/save-post', postInfo);
+//         console.log(`User ${postInfo.userId} has been sent to the API.`);
+//         console.log("Response:", response.data);
+//     } catch (error) {
+//         console.error(`Error sending data for user ${postInfo.userId} to the API:`, error.message);
+//         if (error.response) {
+//             console.error("Response data:", error.response.data);
+//             console.error("Response status:", error.response.status);
+//             console.error("Response headers:", error.response.headers);
+//         }
+//         throw error;
+//     }
+// }
+
+// Save for JSON
+async function savePostToAPI(postInfo, filePath) {
     try {
-        const response = await axios.post('http://14.224.183.55/api/v1/threads/save-post', postInfo);
-        console.log(`User ${postInfo.userId} has been sent to the API.`);
-        console.log("Response:", response.data);
-    } catch (error) {
-        console.error(`Error sending data for user ${postInfo.userId} to the API:`, error.message);
-        if (error.response) {
-            console.error("Response data:", error.response.data);
-            console.error("Response status:", error.response.status);
-            console.error("Response headers:", error.response.headers);
+        let existingData = [];
+        if (fs.existsSync(filePath)) {
+            existingData = JSON.parse(fs.readFileSync(filePath, 'utf8'));
         }
-        throw error;
+
+        existingData.push(postInfo);
+
+        fs.writeFileSync(filePath, JSON.stringify(existingData, null, 2));
+        console.log(`Post information has been saved to ${filePath}`);
+    } catch (error) {
+        console.error("Error saving post to JSON:", error);
     }
 }
 
-async function saveUserToAPI(userInfo) {
+// Save for API
+// async function saveUserToAPI(userInfo) {
+//     try {
+//         const response = await axios.post('http://14.224.183.55/api/v1/threads/save-user', userInfo);
+//         console.log(`User ${userInfo.userId} has been sent to the API.`);
+//         console.log("Response:", response.data);
+//     } catch (error) {
+//         console.error(`Error sending data for user ${userInfo.userId} to the API:`, error.message);
+//         if (error.response) {
+//             console.error("Response data:", error.response.data);
+//             console.error("Response status:", error.response.status);
+//             console.error("Response headers:", error.response.headers);
+//         }
+//         throw error;
+//     }
+// }
+
+async function saveUserToAPI(userInfo, filePath) {
     try {
-        const response = await axios.post('http://14.224.183.55/api/v1/threads/save-user', userInfo);
-        console.log(`User ${userInfo.userId} has been sent to the API.`);
-        console.log("Response:", response.data);
-    } catch (error) {
-        console.error(`Error sending data for user ${userInfo.userId} to the API:`, error.message);
-        if (error.response) {
-            console.error("Response data:", error.response.data);
-            console.error("Response status:", error.response.status);
-            console.error("Response headers:", error.response.headers);
+        let existingData = [];
+        if (fs.existsSync(filePath)) {
+            existingData = JSON.parse(fs.readFileSync(filePath, 'utf8'));
         }
-        throw error;
+
+        existingData.push(userInfo);
+
+        fs.writeFileSync(filePath, JSON.stringify(existingData, null, 2));
+        console.log(`User information has been saved to ${filePath}`);
+    } catch (error) {
+        console.error("Error saving user to JSON:", error);
     }
 }
+
 
 // async function collectUserInfo(driver, items) {
 //     let userInfoList = [];
@@ -252,7 +293,7 @@ async function scrollAndCollectPosts(driver) {
     const userInfoPostList = [];
     const existingUsernames = new Set(); 
     const containerElement = await findValidContainerXpath(driver);
-    const postMax = 10; 
+    const postMax = 50; 
     let postIndex = 1; 
     let uniqueUserCount = 1; 
 
@@ -266,19 +307,19 @@ async function scrollAndCollectPosts(driver) {
             let titleElement = await safeFindElement(postElement, By.xpath('.//div/div/div/div/div[3]/div/div[1]'));
             let title = titleElement ? await titleElement.getText() : 'None title';
 
-            let userIdElement = await safeFindElement(postElement, By.xpath('.//div/span[1]/div/div/a/span'));
+            let userIdElement = await safeFindElement(postElement, By.xpath('.//div/div/div/div/div[2]/div/div[1]/div/span/div/span/div/a'));
             let userId = userIdElement ? await userIdElement.getText() : 'None';
 
-            let authorHrefElement = await safeFindElement(postElement, By.xpath('.//div/span[1]/div/div/a'));
+            let authorHrefElement = await safeFindElement(postElement, By.xpath('.//div/div/div/div/div[2]/div/div[1]/div/span/div/span/div/a'));
             let authorHref = authorHrefElement ? await authorHrefElement.getAttribute('href') : null;
 
-            let timeElment = await safeFindElement(postElement, By.xpath('.//span/a/time/div'));
+            let timeElment = await safeFindElement(postElement, By.xpath('.//div/div[2]/div/div/div[1]/div[2]/div/div/div/div/div[3]/div/div[3]/div/div[1]/div/div/div/span/div/span'));
             let time = timeElment ? await timeElment.getText() : 'None time';
 
-            let tymElment = await safeFindElement(postElement, By.xpath('.//div/div[1]/div/div/span/div/span'));
+            let tymElment = await safeFindElement(postElement, By.xpath('.//div[2]/div/div/div/span/div/span'));
             let tym = tymElment ? await tymElment.getText() : 'None tym';
 
-            let commentElment = await safeFindElement(postElement, By.xpath('.//div/div[2]/div/div/span/div/span'));
+            let commentElment = await safeFindElement(postElement, By.xpath('.//div[3]/div/div/div/span/div/span'));
             let comment = commentElment ? await commentElment.getText() : 'None comment';
 
             let repostElment = await safeFindElement(postElement, By.xpath('.//div/div[3]/div/div/span/div/span'));
@@ -309,6 +350,7 @@ async function scrollAndCollectPosts(driver) {
             posts.push(postData);
             await savePostToAPI(postData);
             console.log(`Post ${postIndex}:`, postData);
+            console.log('authorHref1222222222222222222',authorHref)
 
             if (authorHref) {
                 if (isUsernameUnique(userId, existingUsernames)) {
@@ -424,34 +466,22 @@ async function getElementAttribute(driver, by, attributeName) {
             if (await loadCookies(driver, cookieFilePath)) {  
                 await driver.findElement(By.xpath('/html/body/div[2]/div/div/div[2]/div[1]/div[2]/div[2]/a/div/div[2]')).click();  
                 await sleep(2000);  
-                await driver.findElement(By.xpath('/html/body/div[2]/div/div/div[2]/div[2]/div/div/div/div[2]/div[1]/div/div/div[2]/div[1]/div[1]/div/div[1]/div/div/label/input')).sendKeys(keyword);  
+                await driver.findElement(By.xpath('/html/body/div[2]/div/div/div[2]/div[2]/div/div/div/div[2]/div[1]/div/div/div[2]/div[1]/div[1]/div/div[1]/div/div/div/input')).sendKeys(keyword);  
             } else {  
                 await loginAndSaveCookies(driver, cookieFilePath);  
                 await driver.findElement(By.xpath('/html/body/div[2]/div/div/div[2]/div[1]/div[2]/div[2]/a/div/div[2]')).click();  
                 await sleep(2000);  
-                await driver.findElement(By.xpath('/html/body/div[2]/div/div/div[2]/div[2]/div/div/div/div[2]/div[1]/div/div/div[2]/div[1]/div[1]/div/div[1]/div/div/label/input')).sendKeys(keyword);  
+                await driver.findElement(By.xpath('/html/body/div[2]/div/div/div[2]/div[2]/div/div/div/div[2]/div[1]/div/div/div[2]/div[1]/div[1]/div/div[1]/div/div/div/input')).sendKeys(keyword);  
             }  
-                
-
-            // await driver.findElement(By.xpath('/html/body/div[2]/div/div/div[2]/div[2]/div/div/div/div[2]/div[1]/div/div/div[2]/div[1]/div[1]/div/div[1]/div/div/label/input')).clear();  
-            // await sleep(2000);  
-
-            // let allItems = await scrollAndLoadItems(driver);  
-            // let userInfoList = await collectUserInfo(driver, allItems);  
-            // allUserInfoList.push(...userInfoList); 
-            
-            
             console.log(`Processed user list for ${keyword}`);  
 
-            // await sleep(3000);  
 
 
-            let inputElement = await driver.findElement(By.xpath('/html/body/div[2]/div/div/div[2]/div[2]/div/div/div/div[2]/div[1]/div/div/div[2]/div[1]/div[1]/div/div[1]/div/div/label/input'));  
+            let inputElement = await driver.findElement(By.xpath('/html/body/div[2]/div/div/div[2]/div[2]/div/div/div/div[2]/div[1]/div/div/div[2]/div[1]/div[1]/div/div[1]/div/div/div/input'));  
             await inputElement.clear();  
-            // await sleep(3000);  
 
             await inputElement.sendKeys('\n');  
-            // await sleep(5000);  
+            await sleep(1000);  
 
 
             let { posts, userInfoPostList } = await scrollAndCollectPosts(driver);  

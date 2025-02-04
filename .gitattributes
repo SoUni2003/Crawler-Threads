@@ -1,0 +1,21 @@
+*.js linguist-language=JavaScript
+*.ts linguist-language=TypeScript
+*.json linguist-language=JSON
+*.html linguist-language=HTML
+*.css linguist-language=CSS
+
+*.har linguist-language=JSON
+*.log linguist-vendored
+selenium/* linguist-language=JavaScript
+socket/* linguist-language=JavaScript
+
+package-lock.json linguist-vendored
+yarn.lock linguist-vendored
+node_modules/* linguist-vendored
+dist/* linguist-vendored
+build/* linguist-vendored
+logs/* linguist-vendored
+
+*.md linguist-documentation
+*.yml linguist-language=YAML
+*.yaml linguist-language=YAML
